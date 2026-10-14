@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team Douche Leaderboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#1a0f2e; --bg2:#3a1450; --accent:#ff8a1f; --accent2:#9d5cff;
+  --card:rgba(12,8,20,.62); --card2:rgba(255,255,255,.06); --line:rgba(255,255,255,.12);
+  --text:#fff; --muted:rgba(255,255,255,.66); --gold:#ffd23f; --silver:#d7dde6; --bronze:#e0995e;
+  --good:#3ddc84; --bad:#ff5d73;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{background:#07050c}
+body{font-family:Outfit,system-ui,sans-serif; color:var(--text); min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;transition:background .6s;
+  background:radial-gradient(1200px 700px at 15% -10%,var(--bg2),transparent 60%),
+             radial-gradient(900px 600px at 110% 20%,color-mix(in srgb,var(--accent2) 35%,transparent),transparent 60%),
+             linear-gradient(160deg,var(--bg1),#07050c 85%);
+}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+
+/* floating seasonal bits */
+#particles{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#particles span{position:absolute;top:-10vh;opacity:.55;animation:fall linear infinite;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+@keyframes fall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(120vh) rotate(360deg)}}
+#particles.up span{top:auto;bottom:-10vh;animation-name:rise}
+@keyframes rise{0%{transform:translateY(0) scale(.8)}100%{transform:translateY(-120vh) scale(1.2)}}
+@media (prefers-reduced-motion:reduce){#particles{display:none}}
+
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+
+header{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.logo{font-family:Bungee,Outfit,sans-serif;font-size:clamp(34px,7vw,58px);line-height:.95;letter-spacing:1px;
+  background:linear-gradient(90deg,var(--accent),var(--gold),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 30px color-mix(in srgb,var(--accent) 30%,transparent)}
+.tag{color:var(--muted);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px;margin-top:6px}
+.monthnav{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px;backdrop-filter:blur(8px)}
+.monthnav button{width:38px;height:38px;border-radius:10px;border:0;background:var(--card2);cursor:pointer;font-size:18px}
+.monthnav button:hover:not(:disabled){background:var(--accent);color:#111}
+.monthnav button:disabled{opacity:.3;cursor:default}
+.monthlabel{min-width:170px;text-align:center}
+.monthlabel b{display:block;font-family:Bungee,sans-serif;font-size:20px;font-weight:400}
+.monthlabel small{color:var(--muted);font-size:13px}
+
+.themebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px;backdrop-filter:blur(8px)}
+.chip.hot{background:color-mix(in srgb,var(--accent) 22%,transparent);border-color:color-mix(in srgb,var(--accent) 60%,transparent)}
+
+nav.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:18px;padding-bottom:2px}
+nav.tabs button{flex:0 0 auto;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:700;backdrop-filter:blur(8px)}
+nav.tabs button.on{background:var(--accent);color:#141018;border-color:transparent}
+
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1.25fr 1fr}
+.g3{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+@media (max-width:820px){.g2{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.card h2{margin:0 0 12px;font-family:Bungee,sans-serif;font-weight:400;font-size:18px;letter-spacing:.5px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.card h2 .sub{font-family:Outfit;font-size:13px;color:var(--muted);letter-spacing:0;font-weight:500}
+.section{margin-top:16px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;min-height:190px;display:flex;flex-direction:column;justify-content:center}
+.hero::after{content:"🏆";position:absolute;right:-10px;bottom:-30px;font-size:170px;opacity:.13;transform:rotate(-12deg)}
+.hero .kicker{color:var(--accent);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+.hero .big{font-family:Bungee,sans-serif;font-size:clamp(28px,5vw,42px);margin:6px 0;line-height:1.05}
+.hero .meta{color:var(--muted)}
+.gotm{position:relative;overflow:hidden}
+.gotm .gicon{font-size:56px;line-height:1}
+.gotm .gname{font-family:Bungee,sans-serif;font-size:24px;margin:6px 0 2px}
+.gotm-row{display:flex;gap:16px;align-items:center}
+
+/* buttons & forms */
+.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--accent);color:#141018;transition:transform .08s,filter .15s}
+.btn:hover{filter:brightness(1.1)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+.btn.small{padding:6px 10px;font-size:13px;border-radius:10px}
+.btn.danger{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 5px}
+input,select,textarea{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.35);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select option{background:#1b1622}
+
+.logger{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+.logger .btn{height:46px;font-size:18px;padding:0 22px}
+@media (max-width:640px){.logger{grid-template-columns:1fr 1fr}.logger .btn{grid-column:1/-1}}
+
+/* standings */
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+td.num,th.num{text-align:center}
+.rank{font-family:Bungee,sans-serif;width:44px;text-align:center;font-size:18px}
+.r1 .rank{color:var(--gold)} .r2 .rank{color:var(--silver)} .r3 .rank{color:var(--bronze)}
+.total{font-family:Bungee,sans-serif;font-size:20px;color:var(--accent)}
+.scroll{overflow-x:auto}
+
+.who{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.av{width:34px;height:34px;border-radius:10px;background:var(--card2);display:inline-grid;place-items:center;font-size:20px;flex:0 0 auto}
+.nm{font-weight:800}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;
+  background:linear-gradient(90deg,#ffd23f,#ffb000);color:#2a1a00;box-shadow:0 0 12px rgba(255,210,63,.35);white-space:nowrap}
+.badge.overall{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+
+/* game boards */
+.board h3{margin:0 0 10px;display:flex;align-items:center;gap:8px;font-size:18px}
+.board h3 .ic{font-size:26px}
+.board .gotmtag{margin-left:auto;font-size:11px;background:var(--accent);color:#141018;border-radius:999px;padding:3px 8px;font-weight:800}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border-bottom:0}
+.row .pos{width:24px;text-align:center;font-weight:800;color:var(--muted)}
+.row .grow{flex:1;min-width:0}
+.row .who{flex-wrap:nowrap;max-width:100%}
+#reigning .row{flex-wrap:wrap;row-gap:6px}
+#reigning .row .grow{min-width:110px}
+.row .grow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .cnt{font-family:Bungee,sans-serif;font-size:18px;min-width:30px;text-align:center}
+.pm{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:var(--card2);cursor:pointer;font-weight:800}
+.pm.plus:hover{background:var(--good);color:#06210f}
+.pm.minus:hover{background:var(--bad)}
+.lead .cnt{color:var(--gold)}
+.empty{color:var(--muted);font-style:italic;padding:8px 0}
+
+/* feed */
+.feed{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto}
+.feed li{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.feed time{margin-left:auto;color:var(--muted);font-size:12px;white-space:nowrap}
+
+/* squad */
+.pcard{position:relative;text-align:center;padding:22px 16px}
+.pcard .bigav{font-size:52px;width:84px;height:84px;margin:0 auto 8px;border-radius:24px;display:grid;place-items:center;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 35%,transparent),color-mix(in srgb,var(--accent2) 35%,transparent))}
+.pcard .pname{font-family:Bungee,sans-serif;font-size:20px}
+.pcard .tagline{color:var(--muted);font-size:14px;margin:4px 0 10px;min-height:20px}
+.pcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;text-align:left;font-size:14px;margin:10px 0}
+.pcard dt{color:var(--muted)} .pcard dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.pcard .badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:6px}
+.pcard .me{position:absolute;top:10px;right:10px;font-size:11px;font-weight:800;background:var(--good);color:#06210f;border-radius:999px;padding:3px 8px}
+.pcard .acts{display:flex;gap:8px;justify-content:center;margin-top:10px}
+
+.gitem{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.gitem:last-child{border-bottom:0}
+.gitem .ic{font-size:28px}
+.gitem .grow{flex:1}
+
+.hof{display:grid;gap:12px}
+.hofm{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:start;padding:14px;border-radius:16px;background:var(--card2);border:1px solid var(--line)}
+.hofm .mo{font-family:Bungee,sans-serif;font-size:16px}
+.hofm .mo small{display:block;font-family:Outfit;color:var(--muted);font-size:12px}
+.hofm ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+@media (max-width:600px){.hofm{grid-template-columns:1fr}}
+
+/* modal */
+dialog{border:1px solid var(--line);border-radius:22px;padding:0;background:#17121f;color:var(--text);width:min(460px,calc(100vw - 32px));box-shadow:0 30px 80px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
+dialog form{padding:20px}
+dialog h3{margin:0 0 6px;font-family:Bungee,sans-serif;font-weight:400}
+.emojis{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.emojis button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card2);font-size:20px;cursor:pointer}
+.emojis button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.dlg-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:#111;border:1px solid var(--line);padding:12px 18px;border-radius:14px;font-weight:700;z-index:50;transition:transform .25s;max-width:calc(100vw - 32px)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.err{border-color:var(--bad)}
+
+footer{margin-top:30px;text-align:center;color:var(--muted);font-size:13px}
+footer button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer}
+.hide{display:none!important}
+.readonly{padding:10px 14px;border-radius:12px;background:var(--card2);color:var(--muted);font-size:14px;margin-bottom:12px}
+.pop{animation:pop .5s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="logo">TEAM DOUCHE</div>
+      <div class="tag">Monthly bragging rights · no mercy</div>
+    </div>
+    <div class="monthnav">
+      <button id="prevM" title="Previous month">◀</button>
+      <div class="monthlabel"><b id="mName">—</b><small id="mSub"></small></div>
+      <button id="nextM" title="Next month">▶</button>
+    </div>
+  </header>
+
+  <div class="themebar">
+    <span class="chip hot" id="themeChip"></span>
+    <span class="chip" id="countdown"></span>
+    <span class="chip hide" id="adminChip">🛡️ Admin mode</span>
+  </div>
+
+  <nav class="tabs">
+    <button data-tab="board" class="on">🏆 Leaderboard</button>
+    <button data-tab="squad">👥 The Squad</button>
+    <button data-tab="games">🎮 Games</button>
+    <button data-tab="hall">🏛️ Hall of Fame</button>
+  </nav>
+
+  <!-- LEADERBOARD -->
+  <section id="tab-board">
+    <div class="grid g2">
+      <div class="card hero" id="hero"></div>
+      <div class="card gotm" id="gotm"></div>
+    </div>
+
+    <div class="card section" id="reigningCard">
+      <h2>👑 Reigning champs <span class="sub" id="reigningSub"></span></h2>
+      <div id="reigning"></div>
+    </div>
+
+    <div class="card section" id="loggerCard">
+      <h2>⚡ Log a win <span class="sub">Who just bodied who?</span></h2>
+      <div id="readonlyNote" class="readonly hide"></div>
+      <div class="logger" id="logger">
+        <div><label for="lgPlayer">Winner</label><select id="lgPlayer"></select></div>
+        <div><label for="lgGame">Game</label><select id="lgGame"></select></div>
+        <button class="btn" id="lgBtn">+1 WIN</button>
+      </div>
+    </div>
+
+    <div class="card section">
+      <h2>📊 Overall standings <span class="sub" id="standSub"></span></h2>
+      <div class="scroll"><table id="standings"></table></div>
+    </div>
+
+    <h2 class="section" style="font-family:Bungee;font-weight:400;margin:22px 0 10px">🎯 Game by game</h2>
+    <div class="grid g3" id="boards"></div>
+
+    <div class="card section">
+      <h2>📰 Recent carnage</h2>
+      <ul class="feed" id="feed"></ul>
+    </div>
+  </section>
+
+  <!-- SQUAD -->
+  <section id="tab-squad" class="hide">
+    <div class="card" style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+      <div><b style="font-family:Bungee;font-weight:400;font-size:18px">The Squad</b><div class="tag" style="margin:2px 0 0">Add yourself, then edit your own card any time</div></div>
+      <button class="btn" id="joinBtn">+ Join the squad</button>
+    </div>
+    <div class="grid g3 section" id="squad"></div>
+  </section>
+
+  <!-- GAMES -->
+  <section id="tab-games" class="hide">
+    <div class="grid g2">
+      <div class="card">
+        <h2>🎮 Games we play</h2>
+        <div id="gameList"></div>
+      </div>
+      <div class="card">
+        <h2>➕ Add a game</h2>
+        <form id="gameForm">
+          <label for="gName">Game name</label>
+          <input id="gName" maxlength="32" placeholder="e.g. FIFA, Warzone, Mario Kart" required>
+          <label>Icon</label>
+          <div class="emojis" id="gIcons"></div>
+          <div class="dlg-acts"><button class="btn" type="submit">Add game</button></div>
+        </form>
+        <h2 class="section">🌟 Game of the Month</h2>
+        <div id="gotmSetNote" class="readonly hide"></div>
+        <div id="gotmSet">
+          <label for="gotmSelect">Pick this month's featured game</label>
+          <select id="gotmSelect"></select>
+          <div class="dlg-acts"><button class="btn" id="gotmSave">Set Game of the Month</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HALL OF FAME -->
+  <section id="tab-hall" class="hide">
+    <div class="card">
+      <h2>🏛️ Hall of Fame <span class="sub">Every month's champions, forever</span></h2>
+      <div class="hof" id="hof"></div>
+    </div>
+  </section>
+
+  <footer>
+    Champ of each game at month end wears the 👑 badge all next month · Ties share the crown<br>
+    <button id="adminBtn">Admin login</button>
+  </footer>
+</div>
+
+<!-- player dialog -->
+<dialog id="pDlg">
+  <form id="pForm" method="dialog">
+    <h3 id="pTitle">Join the squad</h3>
+    <div class="tag" style="margin:0 0 6px">This browser remembers it's you, so you can edit later</div>
+    <label for="pName">Name *</label>
+    <input id="pName" maxlength="24" required placeholder="What the lads call you">
+    <div class="two">
+      <div><label for="pTag">Gamertag / PSN</label><input id="pTag" maxlength="32"></div>
+      <div><label for="pPlat">Platform</label>
+        <select id="pPlat"><option value="">—</option><option>PlayStation</option><option>Xbox</option><option>PC</option><option>Switch</option><option>Mobile</option><option>All of them</option></select></div>
+    </div>
+    <label for="pFav">Favourite game</label>
+    <input id="pFav" maxlength="32" placeholder="The one you're actually good at">
+    <label for="pMotto">Trash-talk motto</label>
+    <input id="pMotto" maxlength="80" placeholder="e.g. Sit down, son">
+    <label>Avatar</label>
+    <div class="emojis" id="pAvatars"></div>
+    <div class="dlg-acts">
+      <button class="btn danger small hide" type="button" id="pDelete" style="margin-right:auto">Remove</button>
+      <button class="btn ghost" type="button" id="pCancel">Cancel</button>
+      <button class="btn" type="submit" id="pSave">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+const THEMES = {
+  1:{name:"Frosty Fresh Start",p:["❄️","🥶","✨","🧊"],bg1:"#06142e",bg2:"#0f3b6e",a:"#5ad1ff",a2:"#a7b8ff"},
+  2:{name:"Love & War",p:["💘","💔","🌹","💋"],bg1:"#2a0614",bg2:"#6e0f3a",a:"#ff4f8b",a2:"#ff9ec4"},
+  3:{name:"Lucky Streak",p:["🍀","🌈","🌱","🪙"],bg1:"#04210f",bg2:"#0d5a2c",a:"#3ddc84",a2:"#ffd23f"},
+  4:{name:"Egg Hunt Annihilation",p:["🐣","🥚","🐰","🌷"],bg1:"#1d1236",bg2:"#4a2f7a",a:"#ffe066",a2:"#c59bff"},
+  5:{name:"Bloom or Bust",p:["🌸","🌼","🐝","🌺"],bg1:"#26102a",bg2:"#7a2f6e",a:"#ff8fd6",a2:"#ffd23f"},
+  6:{name:"Summer Showdown",p:["☀️","🍦","🕶️","🌞"],bg1:"#2a1500",bg2:"#8a4b00",a:"#ffb000",a2:"#ff6b3d"},
+  7:{name:"Beach Brawl",p:["🏖️","🌊","🍹","🐚"],bg1:"#00202e",bg2:"#006b7a",a:"#2ee6d6",a2:"#ffcf70"},
+  8:{name:"Heatwave Havoc",p:["🔥","🍉","🌶️","🥵"],bg1:"#2e0700",bg2:"#8a1f00",a:"#ff5a1f",a2:"#ffc23f"},
+  9:{name:"Back to School",p:["🍂","📚","🍎","✏️"],bg1:"#241205",bg2:"#6b3510",a:"#ff9f43",a2:"#e8c547"},
+  10:{name:"Spooky Season",p:["🎃","🦇","👻","🕷️"],bg1:"#14071f",bg2:"#3d1258",a:"#ff8a1f",a2:"#9d5cff"},
+  11:{name:"Bonfire Night",p:["🎆","🎇","🔥","✨"],bg1:"#07071a",bg2:"#22184f",a:"#ff6b3d",a2:"#ffd23f",up:true},
+  12:{name:"Festive Fragging",p:["🎄","🎅","❄️","🎁"],bg1:"#04170c",bg2:"#6b0f1a",a:"#ff3b4f",a2:"#3ddc84"},
+};
+const AVATARS = ["😎","🤡","💀","👽","🤖","🦍","🐐","🦊","🐸","🐼","🦁","🐺","🥷","🧙","🤠","👑","💩","🍆","🧌","🔥"];
+const GAME_ICONS = ["🎮","⚽","🏎️","🔫","🗡️","🃏","🏀","🥊","🐉","🧟","🏈","🎳","♟️","🏹","🚀","🧱"];
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls = {
+  get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+let S = null;               // state from server
+let viewMonth = null;       // YYYY-MM being viewed
+let pin = (()=>{ try { return sessionStorage.getItem("td-pin") || ""; } catch { return ""; } })();
+let tokens = ls.get("td-tokens", {});
+let editingId = null;
+
+const monthTitle = (k, short) => new Date(k + "-15").toLocaleDateString("en-GB", { month: short ? "short" : "long", year: "numeric" });
+const shift = (k, n) => { let [y, m] = k.split("-").map(Number); m += n; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; } return `${y}-${String(m).padStart(2,"0")}`; };
+
+function toast(msg, err){
+  const t = $("#toast"); t.textContent = msg; t.className = "show" + (err ? " err" : "");
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.className = "", 2600);
+}
+async function api(path, method = "GET", body){
+  const r = await fetch("/api/" + path, { method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify({ pin, ...body }) : undefined });
+  let data = {}; try { data = await r.json(); } catch {}
+  if (!r.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
+
+/* ---------- theme ---------- */
+function applyTheme(k){
+  const t = THEMES[Number(k.split("-")[1])];
+  const r = document.documentElement.style;
+  r.setProperty("--bg1", t.bg1); r.setProperty("--bg2", t.bg2); r.setProperty("--accent", t.a); r.setProperty("--accent2", t.a2);
+  $("#themeChip").textContent = `${t.p[0]} ${t.name}`;
+  const box = $("#particles"); box.className = t.up ? "up" : ""; box.innerHTML = "";
+  for (let i = 0; i < 22; i++){
+    const s = document.createElement("span");
+    s.textContent = t.p[i % t.p.length];
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.fontSize = 16 + Math.random() * 26 + "px";
+    s.style.animationDuration = 12 + Math.random() * 18 + "s";
+    s.style.animationDelay = -Math.random() * 30 + "s";
+    box.appendChild(s);
+  }
+}
+
+/* ---------- helpers ---------- */
+const player = (id) => S.players.find((p) => p.id === id);
+const game = (id) => S.games.find((g) => g.id === id);
+function badgesFor(pid){
+  const out = [];
+  if (S.reigning.overall.includes(pid)) out.push(`<span class="badge overall" title="Overall champ of ${monthTitle(S.reigning.month)}">👑 Overall Champ</span>`);
+  for (const [gid, ids] of Object.entries(S.reigning.byGame)){
+    const g = game(gid);
+    if (g && ids.includes(pid)) out.push(`<span class="badge" title="${esc(g.name)} champ of ${monthTitle(S.reigning.month)}">👑 ${esc(g.name)} Champ</span>`);
+  }
+  return out.join("");
+}
+function who(pid, withBadges = true){
+  const p = player(pid);
+  if (!p) return `<span class="who"><span class="av">❔</span><span class="nm">Ex-member</span></span>`;
+  return `<span class="who"><span class="av">${esc(p.avatar)}</span><span class="nm">${esc(p.name)}</span>${withBadges ? badgesFor(pid) : ""}</span>`;
+}
+const names = (ids) => ids.map((id) => esc(player(id)?.name || "Ex-member")).join(" & ");
+const canEdit = () => !S.finished || !!pin;
+const isNow = () => S.month === S.now;
+
+/* ---------- render ---------- */
+function render(){
+  applyTheme(S.month);
+  $("#mName").textContent = monthTitle(S.month);
+  $("#mSub").textContent = isNow() ? "This month" : S.finished ? "Finished" : "Upcoming";
+  $("#nextM").disabled = S.month >= S.now;
+  $("#adminChip").classList.toggle("hide", !pin);
+
+  // countdown
+  if (isNow()){
+    const end = new Date(); const last = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
+    const left = last - end.getDate();
+    $("#countdown").textContent = left === 0 ? "⏰ Last day — crown decided at midnight!" : `⏳ ${left} day${left === 1 ? "" : "s"} left to claim the crown`;
+  } else $("#countdown").textContent = "🔒 Month closed — results are final";
+
+  const st = S.standings;
+  const ranked = Object.entries(st.totals).sort((a, b) => b[1] - a[1]);
+
+  // hero
+  const topIds = st.overall;
+  const lead = topIds.length ? topIds : null;
+  $("#hero").innerHTML = S.finished
+    ? (lead
+        ? `<div class="kicker">${esc(monthTitle(S.month))} champion${lead.length > 1 ? "s" : ""}</div>
+           <div class="big">${lead.map((id) => esc(player(id)?.avatar || "🏆") + " " + esc(player(id)?.name || "Ex-member")).join(" & ")}</div>
+           <div class="meta">${st.totals[lead[0]]} wins. Bow down.</div>`
+        : `<div class="kicker">${esc(monthTitle(S.month))}</div><div class="big">No champion</div><div class="meta">Nobody logged a single win. Shameful.</div>`)
+    : (lead
+        ? `<div class="kicker">Current leader${lead.length > 1 ? "s (tied)" : ""}</div>
+           <div class="big">${lead.map((id) => esc(player(id)?.avatar || "") + " " + esc(player(id)?.name || "")).join(" & ")}</div>
+           <div class="meta">${st.totals[lead[0]]} win${st.totals[lead[0]] === 1 ? "" : "s"} so far${ranked[1] && ranked[1][1] < ranked[0][1] ? ` · ${ranked[0][1] - ranked[1][1]} clear of ${esc(player(ranked[1][0])?.name || "")}` : ""}. It's not over till it's over.</div>`
+        : `<div class="kicker">${esc(monthTitle(S.month))}</div><div class="big">Crown's up for grabs</div><div class="meta">No wins logged yet. First blood gets bragging rights.</div>`);
+
+  // game of the month
+  const gm = S.gotm && game(S.gotm);
+  const gmChamp = gm && st.byGame[gm.id];
+  $("#gotm").innerHTML = `<h2>🌟 Game of the Month</h2>` + (gm
+    ? `<div class="gotm-row"><div class="gicon">${esc(gm.icon)}</div><div>
+         <div class="gname">${esc(gm.name)}</div>
+         <div class="meta" style="color:var(--muted)">${gmChamp ? `${S.finished ? "Won by" : "Leading:"} <b style="color:var(--text)">${names(gmChamp)}</b> (${S.wins[gm.id][gmChamp[0]]})` : "No wins on it yet"}</div>
+       </div></div>`
+    : `<div class="meta" style="color:var(--muted)">None picked yet.</div>`)
+    + (canEdit() && S.games.length ? `<div style="margin-top:14px"><button class="btn ghost small" onclick="goTab('games')">${gm ? "Change" : "Pick one"}</button></div>` : "");
+
+  // reigning champs
+  const r = S.reigning;
+  $("#reigningSub").textContent = `from ${monthTitle(r.month)} · badges worn all ${monthTitle(S.month, true)}`;
+  const rItems = [];
+  if (r.overall.length) rItems.push(`<div class="row"><span class="pos">🏆</span><span class="grow"><b>Overall</b></span>${r.overall.map((id) => who(id, false)).join(" ")}<span class="cnt">${r.totals[r.overall[0]]}</span></div>`);
+  for (const [gid, ids] of Object.entries(r.byGame)){
+    const g = game(gid); if (!g) continue;
+    rItems.push(`<div class="row"><span class="pos">${esc(g.icon)}</span><span class="grow"><b>${esc(g.name)}</b></span>${ids.map((id) => who(id, false)).join(" ")}</div>`);
+  }
+  $("#reigning").innerHTML = rItems.join("") || `<div class="empty">No champs from ${monthTitle(r.month)} — the throne sits empty.</div>`;
+
+  // logger
+  const note = $("#readonlyNote");
+  if (!canEdit()){ note.classList.remove("hide"); note.textContent = "🔒 This month's closed. Only the admin can change old results."; }
+  else if (!isNow()){ note.classList.remove("hide"); note.textContent = "🛡️ Admin: you're editing a past month."; }
+  else note.classList.add("hide");
+  $("#logger").classList.toggle("hide", !canEdit());
+  const lastP = ls.get("td-lastPlayer", ""), lastG = ls.get("td-lastGame", "");
+  $("#lgPlayer").innerHTML = S.players.length ? S.players.map((p) => `<option value="${p.id}" ${p.id === lastP ? "selected" : ""}>${esc(p.avatar)} ${esc(p.name)}</option>`).join("") : `<option value="">Add players in The Squad</option>`;
+  $("#lgGame").innerHTML = S.games.length ? S.games.map((g) => `<option value="${g.id}" ${g.id === (lastG || S.gotm) ? "selected" : ""}>${esc(g.icon)} ${esc(g.name)}</option>`).join("") : `<option value="">Add games first</option>`;
+  $("#lgBtn").disabled = !S.players.length || !S.games.length;
+
+  // standings
+  const gamesWithWins = S.games.filter((g) => S.wins[g.id] && Object.keys(S.wins[g.id]).length);
+  $("#standSub").textContent = `${ranked.reduce((a, b) => a + b[1], 0)} wins logged`;
+  if (!S.players.length) $("#standings").innerHTML = `<tr><td class="empty">No players yet — head to The Squad.</td></tr>`;
+  else {
+    const all = S.players.map((p) => [p.id, st.totals[p.id] || 0]).sort((a, b) => b[1] - a[1] || player(a[0]).name.localeCompare(player(b[0]).name));
+    let rank = 0, prev = null;
+    $("#standings").innerHTML = `<tr><th class="num">#</th><th>Player</th>${gamesWithWins.map((g) => `<th class="num" title="${esc(g.name)}">${esc(g.icon)}<br>${esc(g.name.length > 10 ? g.name.slice(0, 9) + "…" : g.name)}</th>`).join("")}<th class="num">Total</th></tr>`
+      + all.map(([id, n], i) => {
+          if (n !== prev){ rank = i + 1; prev = n; }
+          const rk = n ? rank : "–";
+          return `<tr class="r${n ? rank : 0}"><td class="rank">${rk === 1 ? "🥇" : rk === 2 ? "🥈" : rk === 3 ? "🥉" : rk}</td><td>${who(id)}</td>
+            ${gamesWithWins.map((g) => `<td class="num">${S.wins[g.id][id] || "·"}</td>`).join("")}
+            <td class="num total">${n}</td></tr>`;
+        }).join("");
+  }
+
+  // per-game boards
+  const ordered = [...S.games].sort((a, b) => (b.id === S.gotm) - (a.id === S.gotm));
+  $("#boards").innerHTML = ordered.length ? ordered.map((g) => {
+    const row = S.wins[g.id] || {};
+    const list = S.players.map((p) => [p.id, row[p.id] || 0]).sort((a, b) => b[1] - a[1] || player(a[0]).name.localeCompare(player(b[0]).name));
+    const best = list[0]?.[1] || 0;
+    return `<div class="card board"><h3><span class="ic">${esc(g.icon)}</span>${esc(g.name)}${g.id === S.gotm ? `<span class="gotmtag">GAME OF THE MONTH</span>` : ""}</h3>
+      ${list.length ? list.map(([pid, n], i) => `<div class="row ${n && n === best ? "lead" : ""}">
+          <span class="pos">${n && n === best ? "👑" : i + 1}</span>
+          <span class="grow">${who(pid, false)}</span>
+          ${canEdit() ? `<button class="pm minus" title="Take a win off" onclick="win('${g.id}','${pid}',-1)" ${n ? "" : "disabled"}>−</button>` : ""}
+          <span class="cnt" id="c-${g.id}-${pid}">${n}</span>
+          ${canEdit() ? `<button class="pm plus" title="Add a win" onclick="win('${g.id}','${pid}',1)">+</button>` : ""}
+        </div>`).join("") : `<div class="empty">No players yet</div>`}
+    </div>`;
+  }).join("") : `<div class="card empty">No games yet — add some in the Games tab.</div>`;
+
+  // feed
+  $("#feed").innerHTML = S.log.length ? S.log.map((l) => {
+    const g = game(l.gameId), p = player(l.playerId);
+    const t = new Date(l.at);
+    const when = t.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " " + t.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    return l.delta > 0
+      ? `<li><span class="av">${esc(p?.avatar || "❔")}</span><span><b>${esc(p?.name || "Ex-member")}</b> won at ${esc(g?.icon || "")} <b>${esc(g?.name || "a deleted game")}</b></span><time>${when}</time></li>`
+      : `<li><span class="av">↩️</span><span>Win taken off <b>${esc(p?.name || "Ex-member")}</b> on ${esc(g?.name || "a deleted game")}</span><time>${when}</time></li>`;
+  }).join("") : `<li class="empty">Nothing yet. Go win something.</li>`;
+
+  renderSquad(); renderGames(); renderHall();
+}
+
+function renderSquad(){
+  $("#squad").innerHTML = S.players.length ? S.players.map((p) => {
+    const mine = !!tokens[p.id];
+    const wins = S.standings.totals[p.id] || 0;
+    return `<div class="card pcard">
+      ${mine ? `<span class="me">YOU</span>` : ""}
+      <div class="bigav">${esc(p.avatar)}</div>
+      <div class="pname">${esc(p.name)}</div>
+      <div class="tagline">${p.motto ? `“${esc(p.motto)}”` : ""}</div>
+      <div class="badges">${badgesFor(p.id)}</div>
+      <dl>
+        <dt>Gamertag</dt><dd>${esc(p.gamertag) || "—"}</dd>
+        <dt>Platform</dt><dd>${esc(p.platform) || "—"}</dd>
+        <dt>Fav game</dt><dd>${esc(p.favGame) || "—"}</dd>
+        <dt>Wins (${esc(monthTitle(S.month, true))})</dt><dd>${wins}</dd>
+      </dl>
+      ${mine || pin ? `<div class="acts"><button class="btn ghost small" onclick="openPlayer('${p.id}')">Edit</button></div>` : ""}
+    </div>`;
+  }).join("") : `<div class="card empty">Nobody's signed up yet. Be the first.</div>`;
+}
+
+function renderGames(){
+  $("#gameList").innerHTML = S.games.length ? S.games.map((g) => {
+    const total = Object.values(S.wins[g.id] || {}).reduce((a, b) => a + b, 0);
+    const canDel = !S.adminEnabled || pin;
+    return `<div class="gitem"><span class="ic">${esc(g.icon)}</span><span class="grow"><b>${esc(g.name)}</b>${g.id === S.gotm ? ` <span class="chip hot" style="padding:2px 8px;font-size:11px">🌟 GOTM</span>` : ""}<br><small style="color:var(--muted)">${total} win${total === 1 ? "" : "s"} in ${esc(monthTitle(S.month, true))}</small></span>
+      ${canDel ? `<button class="btn ghost small" onclick="delGame('${g.id}')">Delete</button>` : ""}</div>`;
+  }).join("") : `<div class="empty">No games yet. Add your first one →</div>`;
+
+  const ok = canEdit();
+  $("#gotmSet").classList.toggle("hide", !ok);
+  $("#gotmSetNote").classList.toggle("hide", ok);
+  $("#gotmSetNote").textContent = "🔒 That month's closed.";
+  $("#gotmSelect").innerHTML = `<option value="">— None —</option>` + S.games.map((g) => `<option value="${g.id}" ${g.id === S.gotm ? "selected" : ""}>${esc(g.icon)} ${esc(g.name)}</option>`).join("");
+}
+
+function renderHall(){
+  $("#hof").innerHTML = S.hall.length ? S.hall.map((h) => {
+    const gm = h.gotm && game(h.gotm);
+    return `<div class="hofm">
+      <div class="mo">${esc(monthTitle(h.month))}<small>${THEMES[Number(h.month.split("-")[1])].p[0]} ${esc(THEMES[Number(h.month.split("-")[1])].name)}${gm ? `<br>🌟 GOTM: ${esc(gm.name)}` : ""}</small></div>
+      <ul>
+        <li>🏆 <b>Overall:</b> ${names(h.overall)} <span style="color:var(--muted)">(${h.totals[h.overall[0]]} wins)</span></li>
+        ${Object.entries(h.byGame).filter(([gid]) => game(gid)).map(([gid, ids]) => `<li>${esc(game(gid).icon)} <b>${esc(game(gid).name)}:</b> ${names(ids)}</li>`).join("")}
+      </ul>
+      <button class="btn ghost small" style="grid-column:1/-1;justify-self:start" onclick="go('${h.month}')">View ${esc(monthTitle(h.month, true))} →</button>
+    </div>`;
+  }).join("") : `<div class="empty">The first champions get crowned when this month ends. Make it you.</div>`;
+}
+
+/* ---------- actions ---------- */
+async function load(month){
+  try {
+    S = await api("state" + (month ? `?month=${month}` : ""));
+    viewMonth = S.month;
+    render();
+  } catch (e) { toast("Couldn't reach the leaderboard. " + e.message, true); }
+}
+window.go = (m) => { goTab("board"); load(m); scrollTo({ top: 0, behavior: "smooth" }); };
+
+let busy = false;
+window.win = async (gameId, playerId, delta) => {
+  if (busy) return; busy = true;
+  try {
+    await api("win", "POST", { gameId, playerId, delta, month: S.month });
+    if (delta > 0){
+      const p = player(playerId), g = game(gameId);
+      toast(`${p.avatar} ${p.name} +1 on ${g.name}! ${["GG","Easy","Sit down","Get rekt","Too easy","Ratio'd"][Math.floor(Math.random() * 6)]} 🔥`);
+    } else toast("Win taken off ↩️");
+    await load(S.month);
+    const c = document.getElementById(`c-${gameId}-${playerId}`); if (c) c.classList.add("pop");
+  } catch (e) { toast(e.message, true); }
+  busy = false;
+};
+$("#lgBtn").onclick = () => {
+  const p = $("#lgPlayer").value, g = $("#lgGame").value;
+  if (!p || !g) return;
+  ls.set("td-lastPlayer", p); ls.set("td-lastGame", g);
+  win(g, p, 1);
+};
+
+$("#prevM").onclick = () => load(shift(S.month, -1));
+$("#nextM").onclick = () => load(shift(S.month, 1));
+
+window.goTab = (name) => {
+  document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
+  ["board", "squad", "games", "hall"].forEach((t) => $("#tab-" + t).classList.toggle("hide", t !== name));
+};
+document.querySelectorAll("nav.tabs button").forEach((b) => b.onclick = () => goTab(b.dataset.tab));
+
+/* emoji pickers */
+function picker(el, list, onPick){
+  el.innerHTML = list.map((e) => `<button type="button" data-e="${e}">${e}</button>`).join("");
+  el.onclick = (ev) => { const b = ev.target.closest("button"); if (!b) return; el.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); onPick(b.dataset.e); };
+  return (val) => el.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.e === val));
+}
+let avatar = "😎", gicon = "🎮";
+const setAv = picker($("#pAvatars"), AVATARS, (e) => avatar = e);
+const setGi = picker($("#gIcons"), GAME_ICONS, (e) => gicon = e);
+setGi("🎮");
+
+/* players */
+window.openPlayer = (id) => {
+  editingId = id || null;
+  const p = id ? player(id) : {};
+  $("#pTitle").textContent = id ? "Edit profile" : "Join the squad";
+  $("#pName").value = p.name || ""; $("#pTag").value = p.gamertag || ""; $("#pPlat").value = p.platform || "";
+  $("#pFav").value = p.favGame || ""; $("#pMotto").value = p.motto || "";
+  avatar = p.avatar || AVATARS[Math.floor(Math.random() * AVATARS.length)]; setAv(avatar);
+  $("#pDelete").classList.toggle("hide", !id);
+  $("#pDlg").showModal();
+};
+$("#joinBtn").onclick = () => openPlayer();
+$("#pCancel").onclick = () => $("#pDlg").close();
+$("#pForm").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const body = { name: $("#pName").value, gamertag: $("#pTag").value, platform: $("#pPlat").value, favGame: $("#pFav").value, motto: $("#pMotto").value, avatar };
+  try {
+    if (editingId){
+      await api("player", "PUT", { id: editingId, token: tokens[editingId], ...body });
+      toast("Profile updated ✅");
+    } else {
+      const r = await api("player", "POST", body);
+      tokens[r.player.id] = r.token; ls.set("td-tokens", tokens); ls.set("td-lastPlayer", r.player.id);
+      toast(`Welcome to Team Douche, ${r.player.name} ${r.player.avatar}`);
+    }
+    $("#pDlg").close(); load(S.month);
+  } catch (e) { toast(e.message, true); }
+};
+$("#pDelete").onclick = async () => {
+  const p = player(editingId);
+  if (!confirm(`Remove ${p.name} from the squad? Their past wins stay in the record.`)) return;
+  try {
+    await api("player", "DELETE", { id: editingId, token: tokens[editingId] });
+    delete tokens[editingId]; ls.set("td-tokens", tokens);
+    $("#pDlg").close(); toast("Removed"); load(S.month);
+  } catch (e) { toast(e.message, true); }
+};
+
+/* games */
+$("#gameForm").onsubmit = async (ev) => {
+  ev.preventDefault();
+  try {
+    const r = await api("game", "POST", { name: $("#gName").value, icon: gicon });
+    $("#gName").value = ""; toast(`${r.game.icon} ${r.game.name} added`); load(S.month);
+  } catch (e) { toast(e.message, true); }
+};
+window.delGame = async (id) => {
+  const g = game(id);
+  if (!confirm(`Delete ${g.name}? Its wins will disappear from the boards.`)) return;
+  try { await api("game", "DELETE", { id }); toast("Game deleted"); load(S.month); } catch (e) { toast(e.message, true); }
+};
+$("#gotmSave").onclick = async () => {
+  try { await api("gotm", "POST", { gameId: $("#gotmSelect").value || null, month: S.month }); toast("🌟 Game of the Month set"); load(S.month); }
+  catch (e) { toast(e.message, true); }
+};
+
+/* admin */
+$("#adminBtn").onclick = async () => {
+  if (pin){ pin = ""; try { sessionStorage.removeItem("td-pin"); } catch {} $("#adminBtn").textContent = "Admin login"; toast("Logged out"); render(); return; }
+  const p = prompt("Admin PIN");
+  if (!p) return;
+  try {
+    pin = p; await api("admin", "POST", {});
+    try { sessionStorage.setItem("td-pin", p); } catch {}
+    $("#adminBtn").textContent = "Admin logout"; toast("🛡️ Admin mode on"); render();
+  } catch (e) { pin = ""; toast(e.message, true); }
+};
+if (pin) $("#adminBtn").textContent = "Admin logout";
+
+load();
+setInterval(() => { if (document.visibilityState === "visible" && !document.querySelector("dialog[open]")) load(viewMonth); }, 30000);
+</script>
+</body>
+</html>
